@@ -18,7 +18,8 @@ class Involution2d(nn.Module):
                  groups: int = 1,
                  reduce_ratio: int = 1,
                  dilation: Union[int, Tuple[int, int]] = (1, 1),
-                 padding: Union[int, Tuple[int, int]] = (3, 3)) -> None:
+                 padding: Union[int, Tuple[int, int]] = (3, 3),
+                 **kwargs) -> None:
         """
         Constructor method
         :param in_channels: (int) Number of input channels
@@ -29,6 +30,7 @@ class Involution2d(nn.Module):
         :param reduce_ratio: (int) Reduce ration of involution channels
         :param dilation: (Union[int, Tuple[int, int]]) Dilation in unfold to be employed
         :param padding: (Union[int, Tuple[int, int]]) Padding to be used in unfold operation
+        :param **kwargs: Unused additional key word arguments
         """
         # Call super constructor
         super(Involution2d, self).__init__()
