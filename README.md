@@ -1,6 +1,6 @@
 # Involution: Inverting the Inherence of Convolution for Visual Recognition
 Unofficial **PyTorch** reimplementation of the paper [Involution: Inverting the Inherence of Convolution for Visual Recognition](https://arxiv.org/pdf/2103.06255.pdf)
-[CVPR2021] by Duo Li, Jie Hu, Changhu Wang et al.
+by Duo Li, Jie Hu, Changhu Wang et al. published at CVPR 2021.
 
 ## Example usage
 The 2d involution can be used as a `nn.Module` as follows:
@@ -13,7 +13,7 @@ output = involution(torch.rand(1, 32, 128, 128))
 ````
 
 ## Installation
-The 2d involution can be simply installed by utilizing `pip`
+The 2d involution can be easily installed by utilizing `pip`
 ````shell script
 pip install git+https://github.com/ChristophReich1996/Involution
 ````
