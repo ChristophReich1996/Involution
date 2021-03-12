@@ -20,3 +20,15 @@ The 2d involution can be easily installed by utilizing `pip`
 ````shell script
 pip install git+https://github.com/ChristophReich1996/Involution
 ````
+
+## Reference
+
+````bibtex
+@inproceedings{Li2021,
+    author = {Li, Duo and Hu, Jie and Wang, Changhu and Li, Xiangtai and She, Qi and Zhu, Lei and Zhang, Tong and Chen, Qifeng},
+    title = {Involution: Inverting the Inherence of Convolution for Visual Recognition},
+    booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month = {June},
+    year = {2021}
+}
+````
