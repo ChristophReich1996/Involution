@@ -16,7 +16,7 @@ class Involution2d(nn.Module):
                  kernel_size: Union[int, Tuple[int, int]] = (7, 7),
                  stride: Union[int, Tuple[int, int]] = (1, 1),
                  groups: int = 1,
-                 reduce_ratio: int = 4,
+                 reduce_ratio: int = 1,
                  dilation: Union[int, Tuple[int, int]] = (1, 1),
                  padding: Union[int, Tuple[int, int]] = (3, 3)) -> None:
         """
@@ -43,8 +43,8 @@ class Involution2d(nn.Module):
         self.padding = padding if isinstance(padding, tuple) else tuple(padding, padding)
         # Init modules
         self.initial_mapping = nn.Conv2d(in_channels=self.in_channels, out_channels=self.out_channels,
-                                             kernel_size=(1, 1), stride=(1, 1), padding=(0, 0),
-                                             bias=False) if self.in_channels != self.out_channels else nn.Identity()
+                                         kernel_size=(1, 1), stride=(1, 1), padding=(0, 0),
+                                         bias=False) if self.in_channels != self.out_channels else nn.Identity()
         self.o_mapping = nn.AvgPool2d(kernel_size=self.stride, stride=self.stride)
         self.reduce_mapping = nn.Conv2d(in_channels=self.in_channels,
                                         out_channels=self.out_channels // self.reduce_ratio, kernel_size=(1, 1),
@@ -54,11 +54,33 @@ class Involution2d(nn.Module):
                                       kernel_size=(1, 1), stride=(1, 1), padding=(0, 0))
         self.unfold = nn.Unfold(kernel_size=self.kernel_size, dilation=dilation, padding=padding, stride=stride)
 
+    def __repr__(self) -> str:
+        """
+        Method returns information about the module
+        :return: (str) Info string
+        """
+        return ("{}({}, {}, kernel_size=({}, {}), stride=({}, {}), padding=({}, {}), "
+                "groups={}, reduce_ratio={}, dilation=({}, {}))".format(
+            self.__class__.__name__,
+            self.in_channels,
+            self.out_channels,
+            self.kernel_size[0],
+            self.kernel_size[1],
+            self.stride[0],
+            self.stride[1],
+            self.padding[0],
+            self.padding[1],
+            self.groups,
+            self.reduce_mapping,
+            self.dilation[0],
+            self.dilation[1]
+        ))
+
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """
         Forward pass
-        :param input: (torch.Tensor) Input tensor of the shape []
-        :return: (torch.Tensor) Output tensor of the shape []
+        :param input: (torch.Tensor) Input tensor of the shape [batch size, in channels, height, width]
+        :return: (torch.Tensor) Output tensor of the shape [batch size, out channels, height, width] (w/ same padding)
         """
         # Check input dimension of input tensor
         assert input.ndimension() == 4, \
