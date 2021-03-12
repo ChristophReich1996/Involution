@@ -8,5 +8,6 @@ setup(
     author="Christoph Reich",
     author_email="ChristophReich@gmx.net",
     description="PyTorch 2d Involution",
+    packages=["involution",],
     install_requires=["torch>=1.7.0"],
 )
