@@ -16,7 +16,7 @@ output = involution(torch.rand(1, 32, 128, 128))
 ````
 
 ## Installation
-The 2d involution can be easily installed by utilizing `pip`
+The 2d involution can be easily installed by utilizing `pip`.
 ````shell script
 pip install git+https://github.com/ChristophReich1996/Involution
 ````
