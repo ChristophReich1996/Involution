@@ -13,6 +13,7 @@ class Involution2d(nn.Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
+                 sigma_mapping: nn.Module = None,
                  kernel_size: Union[int, Tuple[int, int]] = (7, 7),
                  stride: Union[int, Tuple[int, int]] = (1, 1),
                  groups: int = 1,
@@ -24,6 +25,7 @@ class Involution2d(nn.Module):
         Constructor method
         :param in_channels: (int) Number of input channels
         :param out_channels: (int) Number of output channels
+        :param sigma_mapping: (nn.Module) Non-linear mapping as introduced in the paper. If none BN + ReLU is utilized
         :param kernel_size: (Union[int, Tuple[int, int]]) Kernel size to be used
         :param stride: (Union[int, Tuple[int, int]]) Stride factor to be utilized
         :param groups: (int) Number of groups to be employed
@@ -34,6 +36,23 @@ class Involution2d(nn.Module):
         """
         # Call super constructor
         super(Involution2d, self).__init__()
+        # Check parameters
+        assert isinstance(in_channels, int) and in_channels > 0, "in channels must be a positive integer."
+        assert in_channels % groups == 0, "out_channels must be divisible by groups"
+        assert isinstance(out_channels, int) and out_channels > 0, "out channels must be a positive integer."
+        assert out_channels % groups == 0, "out_channels must be divisible by groups"
+        assert isinstance(sigma_mapping, nn.Module) or sigma_mapping is None, \
+            "Sigma mapping must be an nn.Module or None to utilize the default mapping (BN + ReLU)."
+        assert isinstance(kernel_size, int) or isinstance(kernel_size, tuple), \
+            "kernel size must be an int or a tuple of ints."
+        assert isinstance(stride, int) or isinstance(stride, tuple), \
+            "stride must be an int or a tuple of ints."
+        assert isinstance(groups, int), "groups must be a positive integer."
+        assert isinstance(reduce_ratio, int) and reduce_ratio > 0, "reduce ratio must be a positive integer."
+        assert isinstance(dilation, int) or isinstance(dilation, tuple), \
+            "dilation must be an int or a tuple of ints."
+        assert isinstance(padding, int) or isinstance(padding, tuple), \
+            "padding must be an int or a tuple of ints."
         # Save parameters
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -44,6 +63,8 @@ class Involution2d(nn.Module):
         self.dilation = dilation if isinstance(dilation, tuple) else tuple(dilation, dilation)
         self.padding = padding if isinstance(padding, tuple) else tuple(padding, padding)
         # Init modules
+        self.sigma_mapping = sigma_mapping if sigma_mapping is not None else nn.Sequential(
+            nn.BatchNorm2d(num_features=self.out_channels // self.reduce_ratio), nn.ReLU())
         self.initial_mapping = nn.Conv2d(in_channels=self.in_channels, out_channels=self.out_channels,
                                          kernel_size=(1, 1), stride=(1, 1), padding=(0, 0),
                                          bias=False) if self.in_channels != self.out_channels else nn.Identity()
@@ -94,7 +115,7 @@ class Involution2d(nn.Module):
         input_unfolded = input_unfolded.view(batch_size, self.groups, self.out_channels // self.groups,
                                              self.kernel_size[0] * self.kernel_size[1], height, width)
         # Generate kernel
-        kernel = self.span_mapping(self.reduce_mapping(self.o_mapping(input)))
+        kernel = self.span_mapping(self.sigma_mapping(self.reduce_mapping(self.o_mapping(input))))
         kernel = kernel.view(
             batch_size, self.groups, self.kernel_size[0] * self.kernel_size[1], height, width).unsqueeze(dim=2)
         # Apply kernel to produce output
