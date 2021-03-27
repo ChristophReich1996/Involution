@@ -83,7 +83,7 @@ class Involution2d(nn.Module):
         :return: (str) Info string
         """
         return ("{}({}, {}, kernel_size=({}, {}), stride=({}, {}), padding=({}, {}), "
-                "groups={}, reduce_ratio={}, dilation=({}, {}))".format(
+                "groups={}, reduce_ratio={}, dilation=({}, {}), sigma_mapping={})".format(
             self.__class__.__name__,
             self.in_channels,
             self.out_channels,
@@ -96,7 +96,8 @@ class Involution2d(nn.Module):
             self.groups,
             self.reduce_mapping,
             self.dilation[0],
-            self.dilation[1]
+            self.dilation[1],
+            str(self.sigma_mapping)
         ))
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
