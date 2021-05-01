@@ -57,7 +57,7 @@ class Involution2d(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size if isinstance(kernel_size, tuple) else tuple(kernel_size, kernel_size)
-        self.stride = stride if isinstance(stride, tuple) else tuple(stride)
+        self.stride = stride if isinstance(stride, tuple) else tuple(stride, stride)
         self.groups = groups
         self.reduce_ratio = reduce_ratio
         self.dilation = dilation if isinstance(dilation, tuple) else tuple(dilation, dilation)
