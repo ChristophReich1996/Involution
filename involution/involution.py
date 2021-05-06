@@ -56,14 +56,14 @@ class Involution2d(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size if isinstance(kernel_size, tuple) else tuple(kernel_size, kernel_size)
-        self.stride = stride if isinstance(stride, tuple) else tuple(stride)
+        self.stride = stride if isinstance(stride, tuple) else tuple(stride, stride)
         self.groups = groups
         self.reduce_ratio = reduce_ratio
         self.dilation = dilation if isinstance(dilation, tuple) else tuple(dilation, dilation)
         self.padding = padding if isinstance(padding, tuple) else tuple(padding, padding)
         # Init modules
         self.sigma_mapping = sigma_mapping if sigma_mapping is not None else nn.Sequential(
-            nn.BatchNorm2d(num_features=self.out_channels // self.reduce_ratio), nn.ReLU())
+            nn.BatchNorm2d(num_features=self.out_channels // self.reduce_ratio, momentum=0.3), nn.ReLU())
         self.initial_mapping = nn.Conv2d(in_channels=self.in_channels, out_channels=self.out_channels,
                                          kernel_size=(1, 1), stride=(1, 1), padding=(0, 0),
                                          bias=False) if self.in_channels != self.out_channels else nn.Identity()
