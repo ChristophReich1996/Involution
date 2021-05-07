@@ -7,6 +7,12 @@ by Duo Li, Jie Hu, Changhu Wang et al. published at CVPR 2021.
 Please note that the [official implementation](https://github.com/d-li14/involution) provides a more memory efficient
 CuPy implementation of the 2D involution.
 
+## Installation
+The 2D involution can be easily installed by utilizing `pip`.
+````shell script
+pip install git+https://github.com/ChristophReich1996/Involution
+````
+
 ## Example Usage
 The 2D involution can be used as a `nn.Module` as follows:
 ````python
@@ -58,11 +64,6 @@ The 2D involution takes the following parameters.
 | bias | If true bias is utilized in each convolution layer (default=False) | bool |
 | **kwargs | Unused additional key word arguments | Any |
 
-## Installation
-The 2D involution can be easily installed by utilizing `pip`.
-````shell script
-pip install git+https://github.com/ChristophReich1996/Involution
-````
 
 ## Reference
 
