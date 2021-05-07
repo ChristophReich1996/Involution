@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 
 import torch
 import torch.nn as nn
@@ -13,7 +13,7 @@ class Involution2d(nn.Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 sigma_mapping: nn.Module = None,
+                 sigma_mapping: Optional[nn.Module] = None,
                  kernel_size: Union[int, Tuple[int, int]] = (7, 7),
                  stride: Union[int, Tuple[int, int]] = (1, 1),
                  groups: int = 1,
@@ -137,7 +137,7 @@ class Involution3d(nn.Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 sigma_mapping: nn.Module = None,
+                 sigma_mapping: Optional[nn.Module] = None,
                  kernel_size: Union[int, Tuple[int, int, int]] = (7, 7, 7),
                  stride: Union[int, Tuple[int, int, int]] = (1, 1, 1),
                  groups: int = 1,
