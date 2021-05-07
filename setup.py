@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="involution",
-    version="0.1",
+    version="0.2",
     url="https://github.com/ChristophReich1996/Involution",
     license="MIT License",
     author="Christoph Reich",
