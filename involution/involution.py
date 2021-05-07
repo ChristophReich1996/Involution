@@ -1,7 +1,7 @@
 from typing import Union, Tuple
-from unfoldNd import UnfoldNd
 import torch
 import torch.nn as nn
+
 
 class Involution2d(nn.Module):
     """
@@ -121,6 +121,91 @@ class Involution2d(nn.Module):
         # Apply kernel to produce output
         output = (kernel * input_unfolded).sum(dim=3).view(batch_size, -1, height, width)
         return output
+        
+
+class Unfold3d(torch.nn.Module):
+    """Extracts sliding local blocks from a batched input tensor. Also known as im2col.
+
+    PyTorch module that accepts 3d, 4d, and 5d tensors. Acts like ``torch.nn.Unfold``
+    for a 4d input. Uses one-hot convolution under the hood.
+
+    See docs at https://pytorch.org/docs/stable/generated/torch.nn.Unfold.html.
+    """
+
+    def __init__(self, kernel_size, dilation=1, padding=0, stride=1):
+        super().__init__()
+
+        self._kernel_size = kernel_size
+        self._dilation = dilation
+        self._padding = padding
+        self._stride = stride
+
+    def forward(self, input):
+        return self.unfold3d(
+            input,
+            self._kernel_size,
+            dilation=self._dilation,
+            padding=self._padding,
+            stride=self._stride,
+        )
+
+    def unfold3d(self, input, kernel_size, dilation=1, padding=0, stride=1):
+        """Extracts sliding local blocks from a batched input tensor. Also known as im2col.
+
+        Pytorch functional that accepts 3d, 4d, and 5d tensors. Acts like
+        ``torch.nn.functional.unfold`` for a 4d input. Uses one-hot convolution under the
+        hood.
+
+        See docs at https://pytorch.org/docs/stable/nn.functional.html#unfold.
+        """
+        batch_size, in_channels = input.shape[0], input.shape[1]
+
+        # prepare one-hot convolution kernel
+        kernel_size = torch.nn.modules.utils._triple(kernel_size)
+        kernel_size_numel = int(kernel_size[0]*kernel_size[1]*kernel_size[2])
+        weight = self._make_weight(in_channels, kernel_size, input.device, input.dtype)
+
+        unfold = torch.nn.functional.conv3d(
+            input,
+            weight,
+            bias=None,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=in_channels,
+        )
+
+        return unfold.reshape(batch_size, in_channels * kernel_size_numel, -1)
+
+    def _make_weight(self, in_channels, kernel_size, device, dtype):
+        """Create one-hot convolution kernel. ``kernel_size`` must be an ``N``-tuple.
+
+        Details:
+            Let ``T`` denote the one-hot weight, then
+            ``T[c * i, 0, j] = δᵢⱼ ∀ c = 1, ... C_in``
+            (``j`` is a group index of the ``Kᵢ``).
+
+            This can be done by building diagonals ``D[i, j] = δᵢⱼ``, reshaping
+            them into ``[∏ᵢ Kᵢ, 1, K]``, and repeat them ``C_in`` times along the
+            leading dimension.
+
+        Returns:
+            torch.Tensor : A tensor of shape ``[ C_in * ∏ᵢ Kᵢ, 1, K]`` where
+                ``K = (K₁, K₂, ..., Kₙ)`` is the kernel size. Filter groups are
+                one-hot such that they effectively extract one element of the patch
+                the kernel currently overlaps with.
+
+
+        """
+        kernel_size_numel = int(kernel_size[0]*kernel_size[1]*kernel_size[2])
+        repeat = [in_channels, 1] + [1 for _ in kernel_size]
+
+        return (
+            torch.eye(kernel_size_numel, device=device, dtype=dtype)
+            .reshape((kernel_size_numel, 1, *kernel_size))
+            .repeat(*repeat)
+        )
+
 
 class Involution3d(nn.Module):
     """
@@ -193,7 +278,7 @@ class Involution3d(nn.Module):
         self.span_mapping = nn.Conv3d(in_channels=self.out_channels // self.reduce_ratio,
                                       out_channels=self.kernel_size[0] * self.kernel_size[1]* self.kernel_size[2] * self.groups,
                                       kernel_size=1, stride=1, padding=0)
-        self.unfold = UnfoldNd(kernel_size=self.kernel_size, dilation=dilation, padding=padding, stride=stride)
+        self.unfold = Unfold3d(kernel_size=self.kernel_size, dilation=dilation, padding=padding, stride=stride)
 
     def __repr__(self) -> str:
         """
