@@ -15,6 +15,22 @@ involution = Involution2d(in_channels=32, out_channels=64)
 output = involution(torch.rand(1, 32, 128, 128))
 ````
 
+The 2D involution takes the following parameters.
+
+| Parameter | Description | Type |
+| ------------- | ------------- | ------------- |
+| in_channels | Number of input channels | int |
+| out_channels | Number of output channels | int |
+| sigma_mapping | Non-linear mapping as introduced in the paper. If none BN + ReLU is utilized | nn.Module |
+| kernel_size | Kernel size to be used | Union[int, Tuple[int, int]] |
+| stride | Stride factor to be utilized | Union[int, Tuple[int, int]] |
+| groups | Number of groups to be employed | int |
+| reduce_ratio | Reduce ration of involution channels | int |
+| dilation | Dilation in unfold to be employed | Union[int, Tuple[int, int]] |
+| padding | Padding to be used in unfold operation | Union[int, Tuple[int, int]] |
+| bias | If true bias is utilized in each convolution layer | bool |
+| **kwargs | Unused additional key word arguments | Any |
+
 ## Installation
 The 2D involution can be easily installed by utilizing `pip`.
 ````shell script
