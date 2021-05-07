@@ -20,6 +20,7 @@ class Involution2d(nn.Module):
                  reduce_ratio: int = 1,
                  dilation: Union[int, Tuple[int, int]] = (1, 1),
                  padding: Union[int, Tuple[int, int]] = (3, 3),
+                 bias: bool = False,
                  **kwargs) -> None:
         """
         Constructor method
@@ -32,6 +33,7 @@ class Involution2d(nn.Module):
         :param reduce_ratio: (int) Reduce ration of involution channels
         :param dilation: (Union[int, Tuple[int, int]]) Dilation in unfold to be employed
         :param padding: (Union[int, Tuple[int, int]]) Padding to be used in unfold operation
+        :param bias: (bool) If true bias is utilized in each convolution layer
         :param **kwargs: Unused additional key word arguments
         """
         # Call super constructor
@@ -53,6 +55,7 @@ class Involution2d(nn.Module):
             "dilation must be an int or a tuple of ints."
         assert isinstance(padding, int) or isinstance(padding, tuple), \
             "padding must be an int or a tuple of ints."
+        assert isinstance(bias, bool), "bias must be a bool"
         # Save parameters
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -62,19 +65,20 @@ class Involution2d(nn.Module):
         self.reduce_ratio = reduce_ratio
         self.dilation = dilation if isinstance(dilation, tuple) else (dilation, dilation)
         self.padding = padding if isinstance(padding, tuple) else (padding, padding)
+        self.bias = bias
         # Init modules
         self.sigma_mapping = sigma_mapping if sigma_mapping is not None else nn.Sequential(
             nn.BatchNorm2d(num_features=self.out_channels // self.reduce_ratio, momentum=0.3), nn.ReLU())
         self.initial_mapping = nn.Conv2d(in_channels=self.in_channels, out_channels=self.out_channels,
                                          kernel_size=(1, 1), stride=(1, 1), padding=(0, 0),
-                                         bias=False) if self.in_channels != self.out_channels else nn.Identity()
+                                         bias=bias) if self.in_channels != self.out_channels else nn.Identity()
         self.o_mapping = nn.AvgPool2d(kernel_size=self.stride, stride=self.stride)
         self.reduce_mapping = nn.Conv2d(in_channels=self.in_channels,
                                         out_channels=self.out_channels // self.reduce_ratio, kernel_size=(1, 1),
-                                        stride=(1, 1), padding=(0, 0), bias=False)
+                                        stride=(1, 1), padding=(0, 0), bias=bias)
         self.span_mapping = nn.Conv2d(in_channels=self.out_channels // self.reduce_ratio,
                                       out_channels=self.kernel_size[0] * self.kernel_size[1] * self.groups,
-                                      kernel_size=(1, 1), stride=(1, 1), padding=(0, 0))
+                                      kernel_size=(1, 1), stride=(1, 1), padding=(0, 0), bias=bias)
         self.unfold = nn.Unfold(kernel_size=self.kernel_size, dilation=dilation, padding=padding, stride=stride)
 
     def __repr__(self) -> str:
@@ -83,7 +87,7 @@ class Involution2d(nn.Module):
         :return: (str) Info string
         """
         return ("{}({}, {}, kernel_size=({}, {}), stride=({}, {}), padding=({}, {}), "
-                "groups={}, reduce_ratio={}, dilation=({}, {}), sigma_mapping={})".format(
+                "groups={}, reduce_ratio={}, dilation=({}, {}), bias={}, sigma_mapping={})".format(
             self.__class__.__name__,
             self.in_channels,
             self.out_channels,
@@ -97,6 +101,7 @@ class Involution2d(nn.Module):
             self.reduce_mapping,
             self.dilation[0],
             self.dilation[1],
+            self.bias,
             str(self.sigma_mapping)
         ))
 
