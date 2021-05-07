@@ -44,8 +44,8 @@ The 3D involution can be used as a `nn.Module` as follows:
 import torch
 from involution import Involution3d
 
-involution = Involution3d(in_channels=32, out_channels=64)
-output = involution(torch.rand(1, 32, 64, 64, 64))
+involution = Involution3d(in_channels=8, out_channels=16)
+output = involution(torch.rand(1, 8, 32, 32, 32))
 ````
 
 The 2D involution takes the following parameters.
