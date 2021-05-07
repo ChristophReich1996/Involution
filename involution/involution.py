@@ -126,7 +126,7 @@ class Involution2d(nn.Module):
 class Unfold3d(torch.nn.Module):
     """Extracts sliding local blocks from a batched input tensor. Also known as im2col.
 
-    PyTorch module that accepts 3d, 4d, and 5d tensors. Acts like ``torch.nn.Unfold``
+    PyTorch module that accepts 5d tensors. Acts like ``torch.nn.Unfold``
     for a 4d input. Uses one-hot convolution under the hood.
 
     See docs at https://pytorch.org/docs/stable/generated/torch.nn.Unfold.html.
@@ -152,7 +152,7 @@ class Unfold3d(torch.nn.Module):
     def unfold3d(self, input, kernel_size, dilation=1, padding=0, stride=1):
         """Extracts sliding local blocks from a batched input tensor. Also known as im2col.
 
-        Pytorch functional that accepts 3d, 4d, and 5d tensors. Acts like
+        Pytorch functional that accepts 5d tensors. Acts like
         ``torch.nn.functional.unfold`` for a 4d input. Uses one-hot convolution under the
         hood.
 
@@ -189,12 +189,11 @@ class Unfold3d(torch.nn.Module):
             them into ``[∏ᵢ Kᵢ, 1, K]``, and repeat them ``C_in`` times along the
             leading dimension.
 
-        Returns:
+        :returns:
             torch.Tensor : A tensor of shape ``[ C_in * ∏ᵢ Kᵢ, 1, K]`` where
                 ``K = (K₁, K₂, ..., Kₙ)`` is the kernel size. Filter groups are
                 one-hot such that they effectively extract one element of the patch
                 the kernel currently overlaps with.
-
 
         """
         kernel_size_numel = int(kernel_size[0]*kernel_size[1]*kernel_size[2])
@@ -210,7 +209,7 @@ class Unfold3d(torch.nn.Module):
 class Involution3d(nn.Module):
     """
     This class implements the 3d involution. Thanks for the code 
-    from https://github.com/f-dangel/unfoldNd, which makes this 3d version become possible
+    from https://github.com/f-dangel/unfoldNd.
     """
 
     def __init__(self,
