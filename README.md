@@ -8,7 +8,7 @@ Please note that the [official implementation](https://github.com/d-li14/involut
 CuPy implementation of the 2D involution.
 
 ## Installation
-The 2D involution can be easily installed by utilizing `pip`.
+The 2D and 3D involution can be easily installed by using `pip`.
 ````shell script
 pip install git+https://github.com/ChristophReich1996/Involution
 ````
