@@ -14,6 +14,9 @@ pip install git+https://github.com/ChristophReich1996/Involution
 ````
 
 ## Example Usage
+Additional examples, such as strided involutions or transposed convolution like involutions, can be found in the 
+[example.py](examples.py) file.
+
 The 2D involution can be used as a `nn.Module` as follows:
 ````python
 import torch
