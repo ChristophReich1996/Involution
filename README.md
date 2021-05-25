@@ -51,7 +51,7 @@ involution = Involution3d(in_channels=8, out_channels=16)
 output = involution(torch.rand(1, 8, 32, 32, 32))
 ````
 
-The 2D involution takes the following parameters.
+The 3D involution takes the following parameters.
 
 | Parameter | Description | Type |
 | ------------- | ------------- | ------------- |
