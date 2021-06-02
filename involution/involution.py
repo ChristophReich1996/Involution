@@ -115,12 +115,14 @@ class Involution2d(nn.Module):
         assert input.ndimension() == 4, \
             "Input tensor to involution must be 4d but {}d tensor is given".format(input.ndimension())
         # Save input shape
-        batch_size, in_channels = input.shape[:2]
+        batch_size, _, in_height, in_width = input.shape
+        out_height = (in_height + 2 * self.padding[0] - self.dilation[0] * (self.kernel_size[0] - 1) - 1) // self.stride[0] + 1
+        out_width = (in_width + 2 * self.padding[1] - self.dilation[1] * (self.kernel_size[1] - 1) - 1) // self.stride[1] + 1
         # Unfold and reshape input tensor
         input_unfolded = self.unfold(self.initial_mapping(input))
         input_unfolded = input_unfolded.view(batch_size, self.groups, self.out_channels // self.groups,
                                              self.kernel_size[0] * self.kernel_size[1],
-                                             int(input_unfolded.shape[-1] ** 0.5), int(input_unfolded.shape[-1] ** 0.5))
+                                             out_height, out_width)
         # Generate kernel
         kernel = self.span_mapping(self.sigma_mapping(self.reduce_mapping(self.o_mapping(input))))
         kernel = kernel.view(batch_size, self.groups, self.kernel_size[0] * self.kernel_size[1],
@@ -244,14 +246,17 @@ class Involution3d(nn.Module):
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         """
         Forward pass
-        :param input: (torch.Tensor) Input tensor of the shape [batch size, in channels, height, width]
-        :return: (torch.Tensor) Output tensor of the shape [batch size, out channels, height, width] (w/ same padding)
+        :param input: (torch.Tensor) Input tensor of the shape [batch size, in channels, depth, height, width]
+        :return: (torch.Tensor) Output tensor of the shape [batch size, out channels, depth, height, width] (w/ same padding)
         """
         # Check input dimension of input tensor
         assert input.ndimension() == 5, \
             "Input tensor to involution must be 5d but {}d tensor is given".format(input.ndimension())
         # Save input shape
-        batch_size, in_channels = input.shape[:2]
+        batch_size, _, in_depth, in_height, in_width = input.shape
+        out_depth = (in_depth + 2 * self.padding[0] - self.dilation[0] * (self.kernel_size[0] - 1) - 1) // self.stride[0] + 1
+        out_height = (in_height + 2 * self.padding[1] - self.dilation[1] * (self.kernel_size[1] - 1) - 1) // self.stride[1] + 1
+        out_width = (in_width + 2 * self.padding[2] - self.dilation[2] * (self.kernel_size[2] - 1) - 1) // self.stride[2] + 1
         # Unfold and reshape input tensor
         input_initial = self.initial_mapping(input)
         input_unfolded = self.pad(input_initial) \
@@ -261,9 +266,7 @@ class Involution3d(nn.Module):
         input_unfolded = input_unfolded.reshape(batch_size, self.groups, self.out_channels // self.groups,
                                                 self.kernel_size[0] * self.kernel_size[1] * self.kernel_size[2], -1)
         input_unfolded = input_unfolded.reshape(tuple(input_unfolded.shape[:-1])
-                                                + (round(input_unfolded.shape[-1] ** (1. / 3.)),
-                                                   round(input_unfolded.shape[-1] ** (1. / 3.)),
-                                                   round(input_unfolded.shape[-1] ** (1. / 3.))))
+                                                + (out_depth, out_height, out_width))
         # Generate kernel
         kernel = self.span_mapping(self.sigma_mapping(self.reduce_mapping(self.o_mapping(input))))
         kernel = kernel.view(
