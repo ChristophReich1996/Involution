@@ -5,7 +5,7 @@ by Duo Li, Jie Hu, Changhu Wang et al. published at CVPR 2021.
 **This repository includes a pure PyTorch implementation of a 2D and 3D involution.**
 
 Please note that the [official implementation](https://github.com/d-li14/involution) provides a more memory efficient
-CuPy implementation of the 2D involution.
+CuPy implementation of the 2D involution. Additionally, [shikishima-TasakiLab](https://github.com/shikishima-TasakiLab) provides a fast and memory efficent [CUDA implementation](https://github.com/shikishima-TasakiLab/Involution-PyTorch) of the 2D Involution.
 
 ## Installation
 The 2D and 3D involution can be easily installed by using `pip`.
