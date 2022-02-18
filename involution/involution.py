@@ -2,7 +2,7 @@ from typing import Union, Tuple, Optional
 
 import torch
 import torch.nn as nn
-
+from torch.nn import functional as F
 
 class Involution2d(nn.Module):
     """
@@ -125,6 +125,8 @@ class Involution2d(nn.Module):
         input_unfolded = input_unfolded.view(batch_size, self.groups, self.out_channels // self.groups,
                                              self.kernel_size[0] * self.kernel_size[1],
                                              out_height, out_width)
+        # Reshape input to avoid shape mismatch problems
+        input = F.adaptive_avg_pool2d(input,(out_height,out_width))
         # Generate kernel
         kernel = self.span_mapping(self.sigma_mapping(self.reduce_mapping(self.o_mapping(input))))
         kernel = kernel.view(batch_size, self.groups, self.kernel_size[0] * self.kernel_size[1],
