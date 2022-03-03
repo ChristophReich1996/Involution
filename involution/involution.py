@@ -21,6 +21,7 @@ class Involution2d(nn.Module):
                  dilation: Union[int, Tuple[int, int]] = (1, 1),
                  padding: Union[int, Tuple[int, int]] = (3, 3),
                  bias: bool = False,
+                 force_shape_match: bool = False,
                  **kwargs) -> None:
         """
         Constructor method
@@ -34,6 +35,7 @@ class Involution2d(nn.Module):
         :param dilation: (Union[int, Tuple[int, int]]) Dilation in unfold to be employed
         :param padding: (Union[int, Tuple[int, int]]) Padding to be used in unfold operation
         :param bias: (bool) If true bias is utilized in each convolution layer
+        :param force_shape_match: (bool) If true potential shape mismatch is solved by performing avg pool
         :param **kwargs: Unused additional key word arguments
         """
         # Call super constructor
@@ -56,6 +58,7 @@ class Involution2d(nn.Module):
         assert isinstance(padding, int) or isinstance(padding, tuple), \
             "padding must be an int or a tuple of ints."
         assert isinstance(bias, bool), "bias must be a bool"
+        assert isinstance(force_shape_match, bool), "force shape match flag must be a bool"
         # Save parameters
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -66,6 +69,7 @@ class Involution2d(nn.Module):
         self.dilation = dilation if isinstance(dilation, tuple) else (dilation, dilation)
         self.padding = padding if isinstance(padding, tuple) else (padding, padding)
         self.bias = bias
+        self.force_shape_match = force_shape_match
         # Init modules
         self.sigma_mapping = sigma_mapping if sigma_mapping is not None else nn.Sequential(
             nn.BatchNorm2d(num_features=self.out_channels // self.reduce_ratio, momentum=0.3), nn.ReLU())
@@ -126,7 +130,8 @@ class Involution2d(nn.Module):
                                              self.kernel_size[0] * self.kernel_size[1],
                                              out_height, out_width)
         # Reshape input to avoid shape mismatch problems
-        input = F.adaptive_avg_pool2d(input,(out_height,out_width))
+        if self.force_shape_match:
+            input = F.adaptive_avg_pool2d(input,(out_height,out_width))
         # Generate kernel
         kernel = self.span_mapping(self.sigma_mapping(self.reduce_mapping(self.o_mapping(input))))
         kernel = kernel.view(batch_size, self.groups, self.kernel_size[0] * self.kernel_size[1],
@@ -154,6 +159,7 @@ class Involution3d(nn.Module):
                  dilation: Union[int, Tuple[int, int, int]] = (1, 1, 1),
                  padding: Union[int, Tuple[int, int, int]] = (3, 3, 3),
                  bias: bool = False,
+                 force_shape_match: bool = False,
                  **kwargs) -> None:
         """
         Constructor method
@@ -167,6 +173,7 @@ class Involution3d(nn.Module):
         :param dilation: (Union[int, Tuple[int, int, int]]) Dilation in unfold to be employed
         :param padding: (Union[int, Tuple[int, int, int]]) Padding to be used in unfold operation
         :param bias: (bool) If true bias is utilized in each convolution layer
+        :param force_shape_match: (bool) If true potential shape mismatch is solved by performing avg pool
         :param **kwargs: Unused additional key word arguments
         """
         # Call super constructor
@@ -189,6 +196,7 @@ class Involution3d(nn.Module):
         assert isinstance(padding, int) or isinstance(padding, tuple), \
             "padding must be an int or a tuple of ints."
         assert isinstance(bias, bool), "bias must be a bool"
+        assert isinstance(force_shape_match, bool), "force shape match flag must be a bool"
         # Save parameters
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -199,6 +207,7 @@ class Involution3d(nn.Module):
         self.dilation = dilation if isinstance(dilation, tuple) else (dilation, dilation, dilation)
         self.padding = padding if isinstance(padding, tuple) else (padding, padding, padding)
         self.bias = bias
+        self.force_shape_match = force_shape_match
         # Init modules
         self.sigma_mapping = sigma_mapping if sigma_mapping is not None else nn.Sequential(
             nn.BatchNorm3d(num_features=self.out_channels // self.reduce_ratio, momentum=0.3), nn.ReLU())
@@ -274,6 +283,9 @@ class Involution3d(nn.Module):
                                                 self.kernel_size[0] * self.kernel_size[1] * self.kernel_size[2], -1)
         input_unfolded = input_unfolded.reshape(tuple(input_unfolded.shape[:-1])
                                                 + (out_depth, out_height, out_width))
+        # Reshape input to avoid shape mismatch problems
+        if self.force_shape_match:
+            input = F.adaptive_avg_pool3d(input, (out_depth, out_height, out_width))
         # Generate kernel
         kernel = self.span_mapping(self.sigma_mapping(self.reduce_mapping(self.o_mapping(input))))
         kernel = kernel.view(

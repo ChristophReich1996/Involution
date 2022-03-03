@@ -40,6 +40,7 @@ The 2D involution takes the following parameters.
 | dilation | Dilation in unfold to be employed (default=(1, 1)) | Union[int, Tuple[int, int]] |
 | padding | Padding to be used in unfold operation (default=(3, 3)) | Union[int, Tuple[int, int]] |
 | bias | If true bias is utilized in each convolution layer (default=False) | bool |
+| force_shape_match | If true potential shape mismatch is solved by performing avg pool (default=False) | bool |
 | **kwargs | Unused additional key word arguments | Any |
 
 The 3D involution can be used as a `nn.Module` as follows:
@@ -65,6 +66,7 @@ The 3D involution takes the following parameters.
 | dilation | Dilation in unfold to be employed (default=(1, 1, 1)) | Union[int, Tuple[int, int, int]] |
 | padding | Padding to be used in unfold operation (default=(3, 3, 3)) | Union[int, Tuple[int, int, int]] |
 | bias | If true bias is utilized in each convolution layer (default=False) | bool |
+| force_shape_match | If true potential shape mismatch is solved by performing avg pool (default=False) | bool |
 | **kwargs | Unused additional key word arguments | Any |
 
 
