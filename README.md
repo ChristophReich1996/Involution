@@ -1,4 +1,7 @@
 # Involution: Inverting the Inherence of Convolution for Visual Recognition
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ChristophReich1996/Involution/blob/master/LICENSE)
+
 Unofficial **PyTorch** reimplementation of the paper [Involution: Inverting the Inherence of Convolution for Visual Recognition](https://arxiv.org/pdf/2103.06255.pdf)
 by Duo Li, Jie Hu, Changhu Wang et al. published at CVPR 2021.
 
